@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cascade Sandbox Demo - AROps</title>
+    <meta name="description" content="Interactive demonstration of hallucination cascades in multi-agent AI systems and how semantic circuit breakers stop the spread.">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --teal-300: #5eead4;
+            --teal-400: #2dd4bf;
+            --teal-500: #14b8a6;
+            --slate-50: #f8fafc;
+            --slate-100: #f1f5f9;
+            --slate-200: #e2e8f0;
+            --slate-300: #cbd5e1;
+            --slate-400: #94a3b8;
+            --slate-500: #64748b;
+            --slate-700: #334155;
+            --slate-800: #1e293b;
+            --slate-900: #0f172a;
+            --slate-950: #020617;
+            --red-400: #f87171;
+            --red-500: #ef4444;
+            --amber-400: #fbbf24;
+            --green-400: #4ade80;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--slate-950);
+            color: var(--slate-200);
+            min-height: 100vh;
+        }
+        
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 1rem 2rem;
+            background: rgba(2, 6, 23, 0.9);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(94, 234, 212, 0.1);
+        }
+        
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--slate-100);
+            text-decoration: none;
+        }
+        
+        .nav-brand svg {
+            margin-right: 0.4rem;
+        }
+        
+        .nav-brand span { color: var(--teal-400); }
+        
+        .logo-pyramid {
+            fill: none;
+            stroke: var(--teal-400);
+            stroke-width: 2;
+            stroke-linejoin: miter;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+        
+        .nav-link {
+            color: var(--slate-400);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        
+        .nav-link:hover { color: var(--teal-400); }
+        
+        /* Main container */
+        .demo-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 6rem 1.5rem 3rem;
+        }
+        
+        .demo-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .demo-badge {
+            display: inline-block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--teal-400);
+            margin-bottom: 0.75rem;
+        }
+        
+        .demo-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--slate-50);
+            margin-bottom: 0.5rem;
+        }
+        
+        .demo-subtitle {
+            color: var(--slate-400);
+            font-size: 0.95rem;
+        }
+        
+        /* Footer */
+        .demo-footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(94, 234, 212, 0.1);
+        }
+        
+        .demo-footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .demo-footer-link {
+            color: var(--slate-500);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        
+        .demo-footer-link:hover { color: var(--teal-400); }
+        
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .demo-container { padding: 5rem 1rem 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-brand"><svg class="logo-pyramid" viewBox="0 0 60 52" xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 21px;"><path d="M2 2 L58 2 L30 50 Z" /></svg>AR<span>Ops</span></a>
+            <div class="nav-links">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/insights/" class="nav-link">Insights</a>
+                <a href="/research/" class="nav-link">Research</a>
+                <a href="/manifesto.html" class="nav-link">Manifesto</a>
+                <a href="https://github.com/arops-io/arops" class="nav-link" target="_blank">GitHub</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="demo-container">
+        <div class="demo-header">
+            <div class="demo-badge">Interactive Demo</div>
+            <h1 class="demo-title">Cascade Amplification Sandbox</h1>
+            <p class="demo-subtitle">Watch a hallucination cascade through a 3-agent pipeline — and see how semantic damping stops it</p>
+        </div>
+        
+        <div id="sandbox-root"></div>
+        
+        <div class="demo-footer">
+            <div class="demo-footer-links">
+                <a href="/manifesto.html" class="demo-footer-link">Read the Manifesto</a>
+                <a href="https://github.com/arops-io/arops/tree/main/examples" class="demo-footer-link" target="_blank">Run the Code</a>
+                <a href="mailto:hello@arops.dev" class="demo-footer-link">Contact</a>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+
+        // ============================================================================
+        // SCENARIOS - Order: Normal → Damped → Cascade
+        // ============================================================================
+        const SCENARIOS = {
+            normal: {
+                id: 'normal',
+                name: '1. Normal Operation',
+                description: 'Accurate data flows through — baseline healthy system',
+                dataAgent: { 
+                    confidence: 0.94, 
+                    output: 'System metrics nominal. CPU 34%, memory 61%. No anomalies.', 
+                    isHallucination: false 
+                },
+                riskAgent: { confidence: 0.95 },
+                actionAgent: { confidence: 0.96 },
+                dampingEnabled: false,
+            },
+            damped: {
+                id: 'damped',
+                name: '2. Hallucination + Damping',
+                description: 'Hallucination injected — circuit breaker catches it',
+                dataAgent: { 
+                    confidence: 0.42, 
+                    output: 'Memory leak in auth-service consuming 2.3GB/hour since 3:47 PM.', 
+                    isHallucination: true 
+                },
+                riskAgent: { confidence: 0.0 },
+                actionAgent: { confidence: 0.0 },
+                dampingEnabled: true,
+            },
+            cascade: {
+                id: 'cascade',
+                name: '3. Hallucination Cascade',
+                description: 'No damping — watch the lie grow',
+                dataAgent: { 
+                    confidence: 0.42, 
+                    output: 'Memory leak in auth-service consuming 2.3GB/hour since 3:47 PM.', 
+                    isHallucination: true 
+                },
+                riskAgent: { confidence: 0.31 },
+                actionAgent: { confidence: 0.28 },
+                dampingEnabled: false,
+            },
+        };
+
+        // ============================================================================
+        // CALCULATIONS
+        // ============================================================================
+        const calculateEntropy = (confidence) => {
+            const c = Math.max(0.01, Math.min(0.99, confidence));
+            return -Math.log2(c);
+        };
+
+        const calculateCascadeAmp = (upConf, downConf, isDamped) => {
+            if (isDamped || downConf === 0) return 0;
+            const hUp = calculateEntropy(upConf);
+            const hDown = calculateEntropy(downConf);
+            if (hUp === 0) return 1;
+            return hDown / hUp;
+        };
+
+        // ============================================================================
+        // COMPONENTS
+        // ============================================================================
+        
+        const AgentCard = ({ name, confidence, output, showHallucination, isBlocked, isActive, step, showOutput }) => {
+            const confPercent = Math.round(confidence * 100);
+            const barColor = isBlocked ? '#64748b' : (showHallucination ? '#f87171' : '#5eead4');
+            
+            return (
+                <div style={{
+                    background: isActive ? 'rgba(94, 234, 212, 0.1)' : 'rgba(30, 41, 59, 0.6)',
+                    border: `1px solid ${isActive ? 'rgba(94, 234, 212, 0.4)' : 'rgba(94, 234, 212, 0.15)'}`,
+                    borderRadius: '12px',
+                    padding: '1.25rem',
+                    width: '240px',
+                    minWidth: '240px',
+                    maxWidth: '240px',
+                    flexShrink: 0,
+                    transition: 'border-color 0.3s, background 0.3s',
+                }}>
+                    <div style={{
+                        fontFamily: '"JetBrains Mono", monospace',
+                        fontSize: '0.7rem',
+                        color: '#94a3b8',
+                        marginBottom: '0.5rem',
+                        letterSpacing: '0.05em',
+                    }}>AGENT {step}</div>
+                    
+                    <div style={{
+                        fontSize: '1rem',
+                        fontWeight: '600',
+                        color: isBlocked ? '#64748b' : '#f1f5f9',
+                        marginBottom: '1rem',
+                    }}>{name}</div>
+                    
+                    <div style={{ marginBottom: '0.75rem' }}>
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            fontSize: '0.75rem',
+                            marginBottom: '0.25rem',
+                        }}>
+                            <span style={{ color: '#94a3b8' }}>Confidence</span>
+                            <span style={{ 
+                                color: !showOutput ? '#64748b' : (isBlocked ? '#64748b' : (confidence < 0.5 ? '#f87171' : '#5eead4')),
+                                fontWeight: '600',
+                            }}>{showOutput ? `${confPercent}%` : '—'}</span>
+                        </div>
+                        <div style={{
+                            height: '6px',
+                            background: '#1e293b',
+                            borderRadius: '3px',
+                            overflow: 'hidden',
+                        }}>
+                            <div style={{
+                                height: '100%',
+                                width: showOutput ? `${confPercent}%` : '0%',
+                                background: barColor,
+                                borderRadius: '3px',
+                                transition: 'width 0.5s ease-out',
+                            }} />
+                        </div>
+                    </div>
+                    
+                    <div style={{
+                        background: 'rgba(15, 23, 42, 0.5)',
+                        borderRadius: '6px',
+                        padding: '0.75rem',
+                        fontSize: '0.75rem',
+                        color: !showOutput ? '#475569' : (isBlocked ? '#64748b' : (showHallucination ? '#fbbf24' : '#94a3b8')),
+                        lineHeight: '1.4',
+                        minHeight: '60px',
+                    }}>
+                        {!showOutput ? 'Waiting...' : (isBlocked ? '[DAMPED] Signal rejected — low confidence' : output)}
+                    </div>
+                    
+                    {showHallucination && showOutput && !isBlocked && (
+                        <div style={{
+                            marginTop: '0.75rem',
+                            padding: '0.5rem',
+                            background: 'rgba(248, 113, 113, 0.1)',
+                            border: '1px solid rgba(248, 113, 113, 0.3)',
+                            borderRadius: '4px',
+                            fontSize: '0.7rem',
+                            color: '#f87171',
+                            textAlign: 'center',
+                        }}>⚠️ HALLUCINATION DETECTED</div>
+                    )}
+                </div>
+            );
+        };
+
+        const Arrow = ({ isBlocked, isActive }) => (
+            <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                padding: '0 0.5rem',
+                opacity: isActive ? 1 : 0.3,
+                transition: 'opacity 0.3s',
+                flexShrink: 0,
+            }}>
+                <div style={{
+                    width: '40px',
+                    height: '2px',
+                    background: isBlocked ? '#64748b' : 'rgba(94, 234, 212, 0.5)',
+                    position: 'relative',
+                }}>
+                    {isBlocked && (
+                        <div style={{
+                            position: 'absolute',
+                            top: '50%',
+                            left: '50%',
+                            transform: 'translate(-50%, -50%)',
+                            color: '#fbbf24',
+                            fontSize: '14px',
+                            fontWeight: 'bold',
+                        }}>✕</div>
+                    )}
+                </div>
+                <div style={{
+                    width: 0,
+                    height: 0,
+                    borderTop: '6px solid transparent',
+                    borderBottom: '6px solid transparent',
+                    borderLeft: `8px solid ${isBlocked ? '#64748b' : 'rgba(94, 234, 212, 0.5)'}`,
+                }} />
+            </div>
+        );
+
+        const MetricGauge = ({ label, value, threshold, isGood, showValue }) => {
+            const displayValue = !showValue ? '—' : (value === Infinity ? '∞' : value.toFixed(2));
+            
+            return (
+                <div style={{
+                    background: 'rgba(30, 41, 59, 0.5)',
+                    border: '1px solid rgba(94, 234, 212, 0.15)',
+                    borderRadius: '8px',
+                    padding: '1rem',
+                    textAlign: 'center',
+                    minWidth: '140px',
+                }}>
+                    <div style={{
+                        fontSize: '0.7rem',
+                        color: '#94a3b8',
+                        marginBottom: '0.5rem',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                    }}>{label}</div>
+                    <div style={{
+                        fontSize: '1.75rem',
+                        fontFamily: '"JetBrains Mono", monospace',
+                        fontWeight: '700',
+                        color: !showValue ? '#475569' : (isGood ? '#5eead4' : '#f87171'),
+                    }}>{displayValue}</div>
+                    {threshold && (
+                        <div style={{
+                            fontSize: '0.7rem',
+                            color: '#64748b',
+                            marginTop: '0.25rem',
+                        }}>{threshold}</div>
+                    )}
+                </div>
+            );
+        };
+
+        // ============================================================================
+        // MAIN SANDBOX
+        // ============================================================================
+        const CascadeSandbox = () => {
+            const [activeScenario, setActiveScenario] = useState('normal');
+            const [isRunning, setIsRunning] = useState(false);
+            const [currentStep, setCurrentStep] = useState(0);
+            const [revealHallucination, setRevealHallucination] = useState(false);
+            
+            const scenario = SCENARIOS[activeScenario];
+            const isHallucination = scenario.dataAgent.isHallucination;
+            const effectiveDamping = scenario.dampingEnabled && isHallucination;
+            
+            const cascadeAmp = useMemo(() => {
+                if (effectiveDamping) return 0;
+                return calculateCascadeAmp(
+                    scenario.dataAgent.confidence,
+                    scenario.actionAgent.confidence,
+                    effectiveDamping
+                );
+            }, [scenario, effectiveDamping]);
+            
+            const hUpstream = calculateEntropy(scenario.dataAgent.confidence);
+            const hDownstream = effectiveDamping ? 0 : calculateEntropy(scenario.actionAgent.confidence);
+            
+            const runSimulation = () => {
+                setIsRunning(true);
+                setCurrentStep(0);
+                setRevealHallucination(false);
+                
+                // Step 1: Researcher agent
+                setTimeout(() => setCurrentStep(1), 300);
+                
+                // Step 2: Analyst agent (reveal hallucination here if applicable)
+                setTimeout(() => {
+                    setCurrentStep(2);
+                    if (isHallucination) {
+                        setTimeout(() => setRevealHallucination(true), 400);
+                    }
+                }, 1200);
+                
+                // Step 3: Executor agent
+                setTimeout(() => setCurrentStep(3), 2100);
+                
+                // Step 4: Complete
+                setTimeout(() => {
+                    setCurrentStep(4);
+                    setIsRunning(false);
+                }, 3000);
+            };
+            
+            const handleScenarioChange = (key) => {
+                setActiveScenario(key);
+                setCurrentStep(0);
+                setIsRunning(false);
+                setRevealHallucination(false);
+            };
+            
+            const getStatus = () => {
+                // Normal operation - no hallucination, system is just healthy
+                if (!isHallucination) {
+                    return { text: 'SYSTEM HEALTHY', color: '#5eead4', icon: '✅' };
+                }
+                // Hallucination was blocked by damping
+                if (effectiveDamping) {
+                    return { text: 'CASCADE BLOCKED', color: '#5eead4', icon: '🛡️' };
+                }
+                // Hallucination propagated - check if amplified
+                if (cascadeAmp > 1) {
+                    return { text: 'CASCADE AMPLIFIED', color: '#f87171', icon: '⚠️' };
+                }
+                return { text: 'CASCADE PROPAGATED', color: '#fbbf24', icon: '⚠️' };
+            };
+            
+            const status = getStatus();
+            
+            return (
+                <div style={{ fontFamily: '"Inter", sans-serif' }}>
+                    {/* Scenario Selector */}
+                    <div style={{
+                        display: 'flex',
+                        gap: '0.5rem',
+                        marginBottom: '1.5rem',
+                        flexWrap: 'wrap',
+                        justifyContent: 'center',
+                    }}>
+                        {Object.entries(SCENARIOS).map(([key, s]) => (
+                            <button
+                                key={key}
+                                onClick={() => handleScenarioChange(key)}
+                                disabled={isRunning}
+                                style={{
+                                    background: activeScenario === key 
+                                        ? 'rgba(94, 234, 212, 0.2)' 
+                                        : 'rgba(30, 41, 59, 0.6)',
+                                    border: `1px solid ${activeScenario === key ? '#5eead4' : 'rgba(94, 234, 212, 0.2)'}`,
+                                    borderRadius: '8px',
+                                    padding: '0.75rem 1.25rem',
+                                    color: activeScenario === key ? '#5eead4' : '#94a3b8',
+                                    cursor: isRunning ? 'not-allowed' : 'pointer',
+                                    fontFamily: '"JetBrains Mono", monospace',
+                                    fontSize: '0.8rem',
+                                    fontWeight: activeScenario === key ? '600' : '400',
+                                    transition: 'all 0.2s',
+                                    opacity: isRunning ? 0.6 : 1,
+                                }}
+                            >
+                                {s.name}
+                            </button>
+                        ))}
+                    </div>
+                    
+                    {/* Description */}
+                    <div style={{
+                        textAlign: 'center',
+                        marginBottom: '1.5rem',
+                        color: '#94a3b8',
+                        fontSize: '0.9rem',
+                    }}>
+                        {scenario.description}
+                    </div>
+                    
+                    {/* Run Button */}
+                    <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+                        <button
+                            onClick={runSimulation}
+                            disabled={isRunning}
+                            style={{
+                                background: isRunning ? '#334155' : '#14b8a6',
+                                color: isRunning ? '#94a3b8' : '#020617',
+                                border: 'none',
+                                borderRadius: '8px',
+                                padding: '0.875rem 2rem',
+                                fontSize: '0.95rem',
+                                fontWeight: '600',
+                                cursor: isRunning ? 'not-allowed' : 'pointer',
+                                transition: 'all 0.2s',
+                            }}
+                        >
+                            {isRunning ? 'Running...' : '▶ Run Simulation'}
+                        </button>
+                    </div>
+                    
+                    {/* Agent Pipeline - Fixed width container to prevent wrapping */}
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.5rem',
+                        marginBottom: '2rem',
+                        overflowX: 'auto',
+                        padding: '0.5rem 0',
+                    }}>
+                        <AgentCard
+                            name="Researcher"
+                            confidence={scenario.dataAgent.confidence}
+                            output={scenario.dataAgent.output}
+                            showHallucination={isHallucination && revealHallucination}
+                            isBlocked={false}
+                            isActive={currentStep === 1}
+                            step="1"
+                            showOutput={currentStep >= 1}
+                        />
+                        
+                        <Arrow 
+                            isBlocked={effectiveDamping}
+                            isActive={currentStep >= 2}
+                        />
+                        
+                        <AgentCard
+                            name="Analyst"
+                            confidence={scenario.riskAgent.confidence}
+                            output={effectiveDamping
+                                ? '[DAMPED] Low-confidence signal rejected'
+                                : (isHallucination 
+                                    ? 'Recommending immediate auth-service restart'
+                                    : 'Analysis complete. System healthy.')}
+                            showHallucination={isHallucination && !effectiveDamping && revealHallucination}
+                            isBlocked={effectiveDamping}
+                            isActive={currentStep === 2}
+                            step="2"
+                            showOutput={currentStep >= 2}
+                        />
+                        
+                        <Arrow 
+                            isBlocked={effectiveDamping}
+                            isActive={currentStep >= 3}
+                        />
+                        
+                        <AgentCard
+                            name="Executor"
+                            confidence={scenario.actionAgent.confidence}
+                            output={effectiveDamping
+                                ? '[BLOCKED] Escalating to human operator'
+                                : (isHallucination 
+                                    ? 'EXECUTED: auth-service restarted. 847 sessions terminated.'
+                                    : 'Acknowledged. Monitoring continues.')}
+                            showHallucination={isHallucination && !effectiveDamping && revealHallucination}
+                            isBlocked={effectiveDamping}
+                            isActive={currentStep === 3}
+                            step="3"
+                            showOutput={currentStep >= 3}
+                        />
+                    </div>
+                    
+                    {/* Metrics */}
+                    <div style={{
+                        display: 'flex',
+                        gap: '1rem',
+                        justifyContent: 'center',
+                        flexWrap: 'wrap',
+                        marginBottom: '1.5rem',
+                    }}>
+                        <MetricGauge
+                            label="H upstream"
+                            value={hUpstream}
+                            threshold="bits"
+                            isGood={true}
+                            showValue={currentStep >= 1}
+                        />
+                        <MetricGauge
+                            label="H downstream"
+                            value={hDownstream}
+                            threshold="bits"
+                            isGood={hDownstream <= hUpstream || effectiveDamping}
+                            showValue={currentStep >= 3}
+                        />
+                        <MetricGauge
+                            label="CASCADE_AMP"
+                            value={cascadeAmp}
+                            threshold="A_C < 1 = stable"
+                            isGood={cascadeAmp < 1 || effectiveDamping}
+                            showValue={currentStep >= 4}
+                        />
+                    </div>
+                    
+                    {/* Status */}
+                    {currentStep >= 4 && (
+                        <div style={{
+                            textAlign: 'center',
+                            padding: '1rem',
+                            background: status.color === '#5eead4' 
+                                ? 'rgba(94, 234, 212, 0.1)' 
+                                : 'rgba(248, 113, 113, 0.1)',
+                            border: `1px solid ${status.color}40`,
+                            borderRadius: '8px',
+                            marginTop: '1rem',
+                        }}>
+                            <span style={{
+                                fontSize: '1rem',
+                                fontWeight: '600',
+                                color: status.color,
+                            }}>
+                                {status.icon} {status.text}
+                            </span>
+                        </div>
+                    )}
+                    
+                    {/* Math Explanation */}
+                    <details style={{ marginTop: '2rem' }}>
+                        <summary style={{
+                            cursor: 'pointer',
+                            color: '#94a3b8',
+                            fontSize: '0.9rem',
+                            padding: '0.75rem',
+                            background: 'rgba(30, 41, 59, 0.3)',
+                            borderRadius: '6px',
+                        }}>
+                            📐 The Math Behind This
+                        </summary>
+                        <div style={{
+                            padding: '1rem',
+                            marginTop: '0.5rem',
+                            background: 'rgba(30, 41, 59, 0.3)',
+                            borderRadius: '6px',
+                            fontSize: '0.85rem',
+                            color: '#94a3b8',
+                            lineHeight: '1.8',
+                        }}>
+                            <p><strong style={{ color: '#5eead4' }}>Cascade Entropy (H):</strong></p>
+                            <p style={{ fontFamily: '"JetBrains Mono", monospace', marginLeft: '1rem' }}>H = -log₂(confidence)</p>
+                            <p style={{ marginTop: '0.5rem' }}>Lower confidence → higher entropy (more uncertainty)</p>
+                            
+                            <p style={{ marginTop: '1rem' }}><strong style={{ color: '#5eead4' }}>Cascade Amplification (A<sub>C</sub>):</strong></p>
+                            <p style={{ fontFamily: '"JetBrains Mono", monospace', marginLeft: '1rem' }}>A<sub>C</sub> = H<sub>downstream</sub> / H<sub>upstream</sub></p>
+                            <p style={{ marginTop: '0.5rem' }}>• A<sub>C</sub> &gt; 1 = Amplifier (error growing — system is fragile)</p>
+                            <p>• A<sub>C</sub> &lt; 1 = Damper (error contained — system is resilient)</p>
+                            <p>• A<sub>C</sub> = 0 = Blocked (circuit breaker tripped)</p>
+                        </div>
+                    </details>
+                </div>
+            );
+        };
+
+        // Render
+        ReactDOM.render(<CascadeSandbox />, document.getElementById('sandbox-root'));
+    </script>
+</body>
+</html>

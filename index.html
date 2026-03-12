@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AROps - Adaptive Resilience Operations</title>
+    <meta name="description" content="Adaptive Resilience Operations. Chaos engineering for the age of Agentic AI. An open paradigm for operational resilience in probabilistic AI systems.">
+    <meta name="keywords" content="AROps, Adaptive Resilience Operations, Probabilistic Resilience Engineering, PRE, chaos engineering, AI resilience, AI operations, hallucination cascade">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="AROps - Adaptive Resilience Operations">
+    <meta property="og:description" content="An open paradigm for operational resilience in probabilistic AI systems.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://arops.dev">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="AROps - Adaptive Resilience Operations">
+    <meta name="twitter:description" content="Chaos engineering evolved for the age of Agentic AI.">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --teal-50: #f0fdfa;
+            --teal-100: #ccfbf1;
+            --teal-200: #99f6e4;
+            --teal-300: #5eead4;
+            --teal-400: #2dd4bf;
+            --teal-500: #14b8a6;
+            --teal-600: #0d9488;
+            --slate-50: #f8fafc;
+            --slate-100: #f1f5f9;
+            --slate-200: #e2e8f0;
+            --slate-300: #cbd5e1;
+            --slate-400: #94a3b8;
+            --slate-500: #64748b;
+            --slate-600: #475569;
+            --slate-700: #334155;
+            --slate-800: #1e293b;
+            --slate-900: #0f172a;
+            --slate-950: #020617;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--slate-950);
+            color: var(--slate-200);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 1rem 2rem;
+            background: rgba(2, 6, 23, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(94, 234, 212, 0.1);
+        }
+        
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--slate-100);
+            text-decoration: none;
+        }
+        
+        .nav-brand svg {
+            margin-right: 0.4rem;
+        }
+        
+        .nav-brand span {
+            color: var(--teal-400);
+        }
+        
+        .logo-pyramid {
+            fill: none;
+            stroke: var(--teal-400);
+            stroke-width: 2;
+            stroke-linejoin: miter;
+        }
+        
+        .logo-pyramid-large {
+            fill: none;
+            stroke: var(--teal-400);
+            stroke-width: 3;
+            stroke-linejoin: miter;
+            filter: drop-shadow(0 0 20px rgba(94, 234, 212, 0.3));
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .nav-link {
+            color: var(--slate-400);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        
+        .nav-link:hover {
+            color: var(--teal-400);
+        }
+        
+        /* Hero */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 8rem 2rem 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at 50% 0%, rgba(94, 234, 212, 0.08) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(94, 234, 212, 0.1);
+            border: 1px solid rgba(94, 234, 212, 0.2);
+            border-radius: 100px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--teal-400);
+            margin-bottom: 2rem;
+        }
+        
+        .hero-title {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 700;
+            color: var(--slate-50);
+            margin-bottom: 1.5rem;
+            line-height: 1.1;
+        }
+        
+        .hero-title span {
+            color: var(--teal-400);
+        }
+        
+        .hero-subtitle {
+            font-size: clamp(1.1rem, 2vw, 1.3rem);
+            color: var(--slate-300);
+            max-width: 700px;
+            margin-bottom: 0.75rem;
+            line-height: 1.7;
+        }
+        
+        .hero-subtitle-2 {
+            font-size: clamp(1rem, 1.8vw, 1.15rem);
+            color: var(--slate-400);
+            max-width: 700px;
+            margin-bottom: 2rem;
+            line-height: 1.7;
+            font-style: italic;
+        }
+        
+        .hero-tagline {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            color: var(--teal-300);
+            font-style: italic;
+            margin-bottom: 3rem;
+        }
+        
+        .hero-cta {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.875rem 1.75rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .btn-primary {
+            background: var(--teal-500);
+            color: var(--slate-950);
+        }
+        
+        .btn-primary:hover {
+            background: var(--teal-400);
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: var(--teal-400);
+            border: 1px solid var(--teal-400);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(94, 234, 212, 0.1);
+        }
+        
+        /* Sections */
+        .section {
+            padding: 6rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--slate-100);
+            margin-bottom: 1rem;
+        }
+        
+        .section-subtitle {
+            font-size: 1.1rem;
+            color: var(--slate-400);
+            margin-bottom: 3rem;
+            max-width: 800px;
+        }
+        
+        /* Features Grid */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .feature-card {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(94, 234, 212, 0.1);
+            border-radius: 12px;
+            padding: 2rem;
+            transition: all 0.3s;
+        }
+        
+        .feature-card:hover {
+            border-color: rgba(94, 234, 212, 0.3);
+            transform: translateY(-4px);
+        }
+        
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--slate-100);
+            margin-bottom: 0.75rem;
+        }
+        
+        .feature-desc {
+            color: var(--slate-400);
+            font-size: 0.95rem;
+        }
+        
+        /* Metrics Section */
+        .metrics {
+            background: rgba(30, 41, 59, 0.3);
+            border-radius: 16px;
+            padding: 3rem;
+            margin-top: 4rem;
+        }
+        
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .metric-card {
+            text-align: center;
+            padding: 1.5rem;
+        }
+        
+        .metric-formula {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            color: var(--teal-400);
+            margin-bottom: 0.5rem;
+        }
+        
+        .metric-name {
+            font-weight: 600;
+            color: var(--slate-200);
+            margin-bottom: 0.5rem;
+        }
+        
+        .metric-desc {
+            font-size: 0.9rem;
+            color: var(--slate-500);
+        }
+        
+        /* Contact Section */
+        .contact {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: rgba(94, 234, 212, 0.05);
+            border-radius: 16px;
+            margin: 4rem 0;
+        }
+        
+        .contact-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--slate-100);
+            margin-bottom: 1rem;
+        }
+        
+        .contact-desc {
+            color: var(--slate-400);
+            margin-bottom: 2rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        /* Audience Section */
+        .section-header-center {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .section-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--teal-400);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+        }
+        
+        .audience-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .audience-card {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(94, 234, 212, 0.1);
+            border-radius: 12px;
+            padding: 2rem;
+            transition: all 0.3s;
+        }
+        
+        .audience-card:hover {
+            border-color: rgba(94, 234, 212, 0.3);
+            transform: translateY(-4px);
+        }
+        
+        .audience-for {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--teal-400);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.75rem;
+        }
+        
+        .audience-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--slate-100);
+            margin-bottom: 0.75rem;
+        }
+        
+        .audience-desc {
+            color: var(--slate-400);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        
+        /* Footer */
+        .footer {
+            border-top: 1px solid rgba(94, 234, 212, 0.1);
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+        
+        .footer-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .footer-brand {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--slate-300);
+            margin-bottom: 1.5rem;
+        }
+        
+        .footer-brand span {
+            color: var(--teal-400);
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .footer-link {
+            color: var(--slate-500);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+        
+        .footer-link:hover {
+            color: var(--teal-400);
+        }
+        
+        .footer-credit {
+            font-size: 0.85rem;
+            color: var(--slate-600);
+        }
+        
+        .footer-credit a {
+            color: var(--slate-500);
+            text-decoration: none;
+        }
+        
+        .footer-credit a:hover {
+            color: var(--teal-400);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .hero-cta {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 280px;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-brand"><svg class="logo-pyramid" viewBox="0 0 60 52" xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 21px;"><path d="M2 2 L58 2 L30 50 Z" /></svg>AR<span>Ops</span></a>
+            <div class="nav-links">
+                <a href="/insights/" class="nav-link">Insights</a>
+                <a href="/research/" class="nav-link">Research</a>
+                <a href="/manifesto.html" class="nav-link">Manifesto</a>
+                <a href="/demo.html" class="nav-link">Demo</a>
+                <a href="https://github.com/arops-io/arops" class="nav-link" target="_blank" rel="noopener">GitHub</a>
+                <a href="mailto:hello@arops.dev" class="nav-link">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <svg class="logo-pyramid-large" viewBox="0 0 120 104" xmlns="http://www.w3.org/2000/svg" style="width: 100px; height: 87px; margin-bottom: 2rem;">
+            <path d="M4 4 L116 4 L60 100 Z" />
+        </svg>
+        <div class="hero-badge">
+            <span>⚡</span> Probabilistic Resilience Engineering
+        </div>
+        <h1 class="hero-title">
+            <span>Adaptive Resilience Operations</span>
+        </h1>
+        <p class="hero-subtitle">
+            Chaos Engineering for the Age of Agentic AI
+        </p>
+        <p class="hero-subtitle-2">
+            AI doesn't break — it drifts... and drift kills silently.
+        </p>
+        <p class="hero-tagline">
+            "Because the future is probabilistic, our operations must be adaptive."
+        </p>
+        <div class="hero-cta">
+            <a href="/manifesto.html" class="btn btn-primary">
+                Read the Manifesto
+            </a>
+            <a href="/demo.html" class="btn btn-secondary">
+                See It In Action
+            </a>
+        </div>
+    </section>
+
+    <!-- What is PRE -->
+    <section class="section">
+        <h2 class="section-title">What is Probabilistic Resilience Engineering?</h2>
+        <p class="section-subtitle">A paradigm shift from testing binary failures to measuring distribution drift in AI systems.</p>
+        
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3 class="feature-title">The New Question</h3>
+                <p class="feature-desc">
+                    Stop asking "Does it break?" Start asking "How does the probability distribution shift when X becomes unreliable?"
+                </p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3 class="feature-title">Semantic Circuit Breakers</h3>
+                <p class="feature-desc">
+                    Circuit breakers that trip not because the server crashed, but because the physics of the conversation became unstable.
+                </p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3 class="feature-title">Physics of Failure</h3>
+                <p class="feature-desc">
+                    Measure cascade entropy, amplification ratios, and coherence tension — the thermodynamics of agentic systems.
+                </p>
+            </div>
+        </div>
+        
+        <!-- Metrics -->
+        <div class="metrics">
+            <h3 class="section-title">The Metrics That Matter</h3>
+            <div class="metric-grid">
+                <div class="metric-card">
+                    <div class="metric-formula">A<sub>C</sub> &lt; 1</div>
+                    <div class="metric-name">Cascade Amplification</div>
+                    <div class="metric-desc">Did the system amplify the error, or contain it? The new SLA.</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-formula">H<sub>cascade</sub></div>
+                    <div class="metric-name">Cascade Entropy</div>
+                    <div class="metric-desc">Shannon entropy applied to error propagation. Not metaphor — measurement.</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-formula">CTI</div>
+                    <div class="metric-name">Coherence Tension Index</div>
+                    <div class="metric-desc">The stress fracture before the break. High CTI = destined to fail.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Who It's For -->
+    <section class="section">
+        <div class="section-header-center">
+            <p class="section-label">Who It's For</p>
+            <h2 class="section-title">AI Resilience for Everyone</h2>
+        </div>
+        
+        <div class="audience-grid">
+            <div class="audience-card">
+                <p class="audience-for">For Platform Teams</p>
+                <h3 class="audience-title">Test Before Failures Cascade</h3>
+                <p class="audience-desc">Inject hallucinations, simulate drift, stress multi-agent coordination. Find the failure modes before your users do.</p>
+            </div>
+            
+            <div class="audience-card">
+                <p class="audience-for">For AI Engineers</p>
+                <h3 class="audience-title">Build Systems That Adapt</h3>
+                <p class="audience-desc">Circuit breakers for confidence. Containment for cascades. Systems that detect and respond, not just fail.</p>
+            </div>
+            
+            <div class="audience-card">
+                <p class="audience-for">For Engineering Leaders</p>
+                <h3 class="audience-title">Understand Operational Risk</h3>
+                <p class="audience-desc">Cost as a reliability metric. Trust tiers for AI dependencies. A framework for reasoning about probabilistic systems.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact -->
+    <section class="section">
+        <div class="contact">
+            <h2 class="contact-title">Join the Movement</h2>
+            <p class="contact-desc">Questions? Ideas? Want to contribute? We'd love to hear from you.</p>
+            <a href="mailto:hello@arops.dev" class="btn btn-primary">
+                Get In Touch
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <svg class="logo-pyramid" viewBox="0 0 60 52" xmlns="http://www.w3.org/2000/svg" style="width: 20px; height: 17px; vertical-align: middle; margin-right: 0.4rem;">
+                    <path d="M2 2 L58 2 L30 50 Z" />
+                </svg>AR<span>Ops</span>
+            </div>
+            
+            <div class="footer-links">
+                <a href="https://github.com/arops-io/arops" class="footer-link" target="_blank" rel="noopener">GitHub</a>
+                <a href="/manifesto.html" class="footer-link">Manifesto</a>
+                <a href="/demo.html" class="footer-link">Demo</a>
+                <a href="https://github.com/arops-io/arops/blob/main/LICENSE" class="footer-link" target="_blank" rel="noopener">Apache 2.0</a>
+                <a href="mailto:hello@arops.dev" class="footer-link">Contact</a>
+            </div>
+            
+            <p class="footer-credit">
+                Built by <a href="https://www.linkedin.com/in/jasondoffing/" target="_blank" rel="noopener">Jason Doffing</a>
+            </p>
+        </div>
+    </footer>
+</body>
+</html>
