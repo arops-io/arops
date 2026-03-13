@@ -136,6 +136,15 @@
             margin-top: 2.5rem;
             margin-bottom: 1.25rem;
         }
+
+        /* Image */
+        .invisible-failure-image {
+            width: 100%;
+            max-width: 100%;
+            border-radius: 8px;
+            margin: 2rem 0;
+            border: 1px solid rgba(94, 234, 212, 0.2);
+        }
         
         p { margin-bottom: 1.25rem; }
         strong { color: var(--slate-100); }
@@ -300,12 +309,11 @@
     <p>
       It's wrong.
     </p>
-    <p>
-      We deployed CTI against 4,182 individual claims across 248 scored generations in a controlled multi-agent experiment. It flagged everything. Every generation. Every condition. Zero discrimination. A fabricated claim scores 4.4 out of 5 on our conviction intensity scale. A true claim scores 4.5. <strong>That's a gap of 0.1 on a 5-point scale.</strong> That's the gap your monitoring system has to work with. It can't.
-    </p>
-    <p>
-      The model isn't lying. That's the paradox. It's not deception, it's delusion. An agent that fabricates a claim about a pressure threshold believes that claim with a 97% conviction rate. There is no tell. No hedging. No uncertainty signal. No behavioral fingerprint that separates truth from fabrication.
-    </p>
+    <p> We deployed CTI against 4,182 individual claims across 248 scored generations in a controlled multi-agent experiment. It flagged everything. Every generation. Every condition. Zero discrimination. A fabricated claim scores 4.4 out of 5 on our conviction intensity scale. A true claim scores 4.5. <strong>That's a gap of 0.1 on a 5-point scale.</strong> That's the gap your monitoring system has to work with. It can't.</p>
+   
+    <img src="/../assets/conviction.png" alt="Bar chart comparing conviction intensity scores for fabricated and true claims on a five-point scale. Fabricated claims score 4.4 and true claims score 4.5, showing a minimal difference. The chart background is dark, matching the website theme, and the visual tone is analytical and neutral. Text in the image reads Conviction Intensity Scale, Fabricated 4.4, True 4.5." class="invisible-failure-image">
+    
+    <p>The model isn't lying. That's the paradox. It's not deception, it's delusion. An agent that fabricates a claim about a pressure threshold believes that claim with a 97% conviction rate. There is no tell. No hedging. No uncertainty signal. No behavioral fingerprint that separates truth from fabrication.</p>
     <p>
       We didn't just fail to build a lie detector. We proved that confidence-based lie detection can't work in this architecture, because the system has lost contact with reality while retaining full confidence in its version of it.
     </p>
